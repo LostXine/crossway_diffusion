@@ -30,6 +30,8 @@ def main(checkpoint, output_dir, device):
     # load checkpoint
     payload = torch.load(open(checkpoint, 'rb'), pickle_module=dill)
     cfg = payload['cfg']
+    cfg._target_ = cfg._target_.replace('train_ae_diffusion', 'train_crossway_diffusion')
+    cfg.policy._target_ = cfg.policy._target_.replace('ae_diffusion', 'crossway_diffusion')
     cls = hydra.utils.get_class(cfg._target_)
     workspace = cls(cfg, output_dir=output_dir)
     workspace: BaseWorkspace
