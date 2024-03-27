@@ -59,14 +59,7 @@ To evaluate a checkpoint:
 By default, the code will evaluate the model for 50 episodes and the results will be available at `<path for output>/eval_log.json`. 
 
 ## Pretrained Models
-Our pretrained models (for 500 epochs) are available at `https://vision.cs.stonybrook.edu/~mryoo/crossway/ckpts/crossway_diffusion-<task>-s<seed>.ckpt` as well as the SHA1 checksums at  `https://vision.cs.stonybrook.edu/~mryoo/crossway/ckpts/crossway_diffusion-<task>-s<seed>.ckpt.sha1`.
-
-Our evaluation results (1000 episodes per checkpoint) are available at  `https://vision.cs.stonybrook.edu/~mryoo/crossway/ckpts/crossway_diffusion-<task>-s<seed>.ckpt.json`. 
-
-Please replace `<task>` with a specific task name and replace `<seed>` with 42, 43, or 44 to get a valid link.
-
-For example, the pretrained model for task Push-T trained on seed 42 is at the link below:
-`https://vision.cs.stonybrook.edu/~mryoo/crossway/ckpts/crossway_diffusion-pusht-s42.ckpt`
+Our pretrained models and evaluation results are now available at [Hugging Face](https://huggingface.co/varunbel/crossway_diffusion).
 
 ## License
 This repository is released under the MIT license. See [LICENSE](LICENSE) for additional details.
