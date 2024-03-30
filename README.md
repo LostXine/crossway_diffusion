@@ -38,7 +38,7 @@ The Python environment used in this project is identical to [Diffusion Policy](h
 ## Download Datasets
 Please follow the guide at [this link](https://github.com/columbia-ai-robotics/diffusion_policy/blob/main/README.md) to download the simulated datasets.
 
-Our real-world datasets are available at this [Google Drive Link](https://drive.google.com/drive/folders/1VWzLZ38fuOVJpbp3gnQSb0ucAEl7ALt1?usp=sharing).
+Our real-world datasets are available at [Hugging Face Dataset](https://huggingface.co/datasets/varunbel/crossway_ducks).
 The dataset files have a similar structure as [robomimic](https://robomimic.github.io/docs/datasets/overview.html).
 Please check [dataset_readme.md](dataset_readme.md) to train on our and your own datasets.
 
