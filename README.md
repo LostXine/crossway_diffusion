@@ -5,6 +5,7 @@ This is the official implementation of our [ICRA'24](https://2024.ieee-icra.org/
 The code is adapted from [Diffusion Policy](https://github.com/real-stanford/diffusion_policy).
 
 ## News
+- 7/1/2024, The 7 min presentation for ICRA'24 is online! [[Youtube](https://youtu.be/QESqudTVTkM)].
 - 1/29/2024, [our paper](https://arxiv.org/abs/2307.01849) and the [attached video](https://youtu.be/9deKHueZBuk) have been aceepted to [ICRA'24](https://2024.ieee-icra.org/) 🎉.
 - 1/12/2024, [a new version of our paper](https://arxiv.org/pdf/2307.01849v3.pdf) has been released.
 
