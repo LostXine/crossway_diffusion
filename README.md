@@ -46,7 +46,7 @@ Please check [dataset_readme.md](dataset_readme.md) to train on our and your own
 ## Training
 To train a model on simulated datasets with a specific random seed:
 
-`EGL_DEVICE_ID=0 python train.py --config-dir=config/${task}/ --config-name=type[a-c].yaml training.seed=4[2-4]`
+`EGL_DEVICE_ID=0 python train.py --config-dir=config/${task}/ --config-name=type[a-d].yaml training.seed=4[2-4]`
 
 where `${EGL_DEVICE_ID}` defines which GPU is used for rendering simulated images, `${task}` can be `can_ph`, `can_mh`, `lift_ph`, `lift_mh`, `square_ph`, `square_mh`, `transport_ph`, `transport_mh`, `tool_hang_ph` and `pusht`.
 
