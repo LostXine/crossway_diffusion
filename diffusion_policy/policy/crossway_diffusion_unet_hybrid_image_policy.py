@@ -8,7 +8,7 @@ from diffusers.schedulers.scheduling_ddpm import DDPMScheduler
 
 from diffusion_policy.model.common.normalizer import LinearNormalizer
 from diffusion_policy.policy.base_image_policy import BaseImagePolicy
-from diffusion_policy.model.diffusion.conditional_unet1d import ConditionalUnet1DwDecTypeA, ConditionalUnet1DwDecTypeB, ConditionalUnet1DwDecTypeC
+from diffusion_policy.model.diffusion.conditional_unet1d import ConditionalUnet1DwDecTypeA, ConditionalUnet1DwDecTypeB, ConditionalUnet1DwDecTypeC, ConditionalUnet1DwDecTypeD
 from diffusion_policy.model.diffusion.mask_generator import LowdimMaskGenerator
 from diffusion_policy.common.robomimic_config_util import get_robomimic_config
 from robomimic.algo import algo_factory
@@ -42,7 +42,7 @@ class AEDiffusionUnetHybridImagePolicy(BaseImagePolicy):
             decode_resolution=2,
             decode_dims=(64, 128),
             decode_low_dim_dims=(2, 4), 
-            decode_ver='v1',
+            decode_ver='a',
             # parameters passed to step
             **kwargs):
         super().__init__()
@@ -141,12 +141,16 @@ class AEDiffusionUnetHybridImagePolicy(BaseImagePolicy):
             input_dim = action_dim
             global_cond_dim = obs_feature_dim * n_obs_steps
 
-        if decode_ver == 'v3':
-            mymodel = ConditionalUnet1DwDecTypeB
-        elif decode_ver == 'v2':
-            mymodel = ConditionalUnet1DwDecTypeC
-        else:
+        if decode_ver == 'a':
             mymodel = ConditionalUnet1DwDecTypeA
+        if decode_ver == 'b':
+            mymodel = ConditionalUnet1DwDecTypeB
+        elif decode_ver == 'c':
+            mymodel = ConditionalUnet1DwDecTypeC
+        elif decode_ver == 'd':
+            mymodel = ConditionalUnet1DwDecTypeD
+        else:
+            raise NotImplementedError(f'Unknown decoder type: {decode_ver}')
 
         model = mymodel(
             input_dim=input_dim,

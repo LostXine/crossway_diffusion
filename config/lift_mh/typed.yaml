@@ -1,0 +1,185 @@
+_target_: diffusion_policy.workspace.train_crossway_diffusion_unet_hybrid_workspace.TrainAEDiffusionUnetHybridWorkspace
+checkpoint:
+  save_last_ckpt: true
+  save_last_snapshot: false
+  topk:
+    format_str: epoch={epoch:04d}-test_mean_score={test_mean_score:.3f}.ckpt
+    k: 5
+    mode: max
+    monitor_key: test_mean_score
+dataloader:
+  batch_size: 64
+  num_workers: 8
+  persistent_workers: false
+  pin_memory: true
+  shuffle: true
+dataset_obs_steps: 2
+ema:
+  _target_: diffusion_policy.model.diffusion.ema_model.EMAModel
+  inv_gamma: 1.0
+  max_value: 0.9999
+  min_value: 0.0
+  power: 0.75
+  update_after_step: 0
+exp_name: default
+horizon: 16
+n_obs_steps: 2
+n_action_steps: 8
+logging:
+  group: null
+  id: null
+  mode: online
+  name: ep${training.num_epochs}_train_crossway_${policy.decode_ver}_diffusion_unet_hybrid_lift_image_mh
+  project: diffusion_policy_debug
+  tags:
+  - ${name}
+  - lift_image_mh
+  - default
+name: train_crossway_diffusion_unet_hybrid
+optimizer:
+  _target_: torch.optim.AdamW
+  betas:
+  - 0.95
+  - 0.999
+  eps: 1.0e-08
+  lr: 0.0001
+  weight_decay: 1.0e-06
+past_action_visible: false
+policy:
+  _target_: diffusion_policy.policy.crossway_diffusion_unet_hybrid_image_policy.AEDiffusionUnetHybridImagePolicy
+  cond_predict_scale: true
+  crop_shape:
+  - 76
+  - 76
+  diffusion_step_embed_dim: 128
+  down_dims:
+  - 512
+  - 1024
+  - 2048
+  decode_unet_feat: true
+  decode_dims:
+  - 128
+  - 256
+  decode_low_dim_dims:
+  - 4
+  - 2
+  decode_ver: d
+  decode_pe_dim: 64
+  decode_resolution: 2
+  eval_fixed_crop: true
+  horizon: ${horizon}
+  kernel_size: 5
+  n_action_steps: ${n_action_steps}
+  n_groups: 8
+  n_obs_steps: ${n_obs_steps}
+  noise_scheduler:
+    _target_: diffusers.schedulers.scheduling_ddpm.DDPMScheduler
+    beta_end: 0.02
+    beta_schedule: squaredcos_cap_v2
+    beta_start: 0.0001
+    clip_sample: true
+    num_train_timesteps: 100
+    prediction_type: epsilon
+    variance_type: fixed_small
+  num_inference_steps: 100
+  obs_as_global_cond: true
+  obs_encoder_group_norm: true
+  shape_meta: ${shape_meta}
+shape_meta:
+  action:
+    shape:
+    - 10
+  obs:
+    agentview_image:
+      shape:
+      - 3
+      - 84
+      - 84
+      type: rgb
+      dec_loss_weight: 0.1
+    robot0_eef_pos:
+      shape:
+      - 3
+      type: low_dim
+      dec_loss_weight: 0.1
+    robot0_eef_quat:
+      shape:
+      - 4
+      type: low_dim
+      dec_loss_weight: 0.1
+    robot0_eye_in_hand_image:
+      shape:
+      - 3
+      - 84
+      - 84
+      type: rgb
+      dec_loss_weight: 0.1
+    robot0_gripper_qpos:
+      shape:
+      - 2
+      type: low_dim
+      dec_loss_weight: 0.1
+task:
+  abs_action: true
+  dataset:
+    _target_: diffusion_policy.dataset.robomimic_replay_image_dataset.RobomimicReplayImageDataset
+    abs_action: true
+    dataset_path: ${task.dataset_path}
+    horizon: ${horizon}
+    n_obs_steps: ${n_obs_steps}
+    pad_after: 7
+    pad_before: 1
+    rotation_rep: rotation_6d
+    seed: 42
+    shape_meta: ${shape_meta}
+    use_cache: true
+    val_ratio: 0.02
+  dataset_path: data/robomimic/datasets/lift/mh/image_abs.hdf5
+  dataset_type: mh
+  env_runner:
+    _target_: diffusion_policy.env_runner.robomimic_image_runner.RobomimicImageRunner
+    abs_action: true
+    crf: 22
+    dataset_path: ${task.dataset_path}
+    fps: 10
+    max_steps: 400
+    n_action_steps: ${n_action_steps}
+    n_envs: 14
+    n_obs_steps: ${n_obs_steps}
+    n_test: 50
+    n_test_vis: 4
+    n_train: 6
+    n_train_vis: 2
+    past_action: false
+    render_obs_key: agentview_image
+    shape_meta: ${shape_meta}
+    test_start_seed: 100000
+    tqdm_interval_sec: 1.0
+    train_start_idx: 0
+  name: lift_image_mh
+  shape_meta: ${shape_meta}
+  task_name: ${task_name}
+task_name: lift_image
+training:
+  checkpoint_every: 50
+  debug: false
+  resume: true
+  device: cuda:0
+  gradient_accumulate_every: 1
+  lr_scheduler: cosine
+  lr_warmup_steps: 500
+  max_train_steps: null
+  max_val_steps: null
+  num_epochs: 501
+  rollout_every: 50
+  sample_every: 5
+  seed: 42
+  tqdm_interval_sec: 1.0
+  use_ema: true
+  val_every: 1
+val_dataloader:
+  batch_size: 64
+  num_workers: 8
+  persistent_workers: false
+  pin_memory: true
+  shuffle: false

@@ -448,7 +448,59 @@ class ConditionalUnet1DwDecTypeA(ConditionalUnet1D):
                     
         return x_res, recons
     
+class ConditionalUnet1DwDecTypeD(ConditionalUnet1DwDecTypeA):
+    # no intersection, directly reconstruct from the state representation
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # merge the gap between input state and dec
+        self.mid_proj = nn.Sequential(
+            nn.Linear(kwargs['global_cond_dim'] // self.n_obs_steps, kwargs['decode_dims'][-1]),
+            nn.ReLU()
+        )
+        print('Initialize TypeD')
+
+    def forward_and_recon(self,
+        sample: torch.Tensor, 
+        timestep: Union[torch.Tensor, float, int], 
+        local_cond=None, global_cond=None, **kwargs):
+        x_res, mid = self.forward_w_mid(sample=sample,
+                                timestep=timestep,
+                                local_cond=local_cond,
+                                global_cond=global_cond)
+        
+        if self.decode_unet_feat:
+            assert len(global_cond.shape) == 2
+            
+            mid_id = einops.rearrange(global_cond, 'b (t c) -> (b t) c', t=self.n_obs_steps)
+            mid_id = self.mid_proj(mid_id).unsqueeze(-1).unsqueeze(-1)
+            mid_rgb = mid_id.repeat(1, 1, self.decode_resolution, self.decode_resolution)
+            # 128 (64 x 2) x 128 x 2 x 2
+            
+            recons = {}
+            for key, obs in self.obs_shape_meta.items():
+                if obs['type'] == 'rgb':
+                    # generate a grid
+                    n_upsamples = len(self.decs[key])
+                    h_res = self.rgb_shape[0] // (2 ** n_upsamples)
+                    w_res = self.rgb_shape[1] // (2 ** n_upsamples)
+                    
+                    h_scale = math.ceil(h_res / self.decode_resolution)
+                    w_scale = math.ceil(w_res / self.decode_resolution)
+                    
+                    x = mid_rgb.repeat(1, 1, h_scale, w_scale)
+                    x = x[:, :, :h_res, :w_res]
+                    
+                    for resnet in self.decs[key]:
+                        x = torch.cat((x, self.generate_positional_embedding(x, self.decode_pe_dim)), dim=1)
+                        x = resnet(x)
+                    x = self.decs[key + '_final'](x)
+                    recons[key] = x
+        else:
+            raise NotImplementedError('Haven\'t finished yet.')
+                    
+        return x_res, recons
     
+
 class ConditionalUnet1DwDecTypeC(ConditionalUnet1DwDecTypeA):
     # 4 tokens as 4 pixels, project all channels to smaller channel numbers
     def __init__(self, **kwargs):
@@ -461,6 +513,7 @@ class ConditionalUnet1DwDecTypeC(ConditionalUnet1DwDecTypeA):
                     nn.Mish()
                 )
         self.proj = nn.ModuleDict(proj)
+        print('Initialize TypeC')
     
     def forward_and_recon(self,
         sample: torch.Tensor, 
@@ -533,6 +586,7 @@ class ConditionalUnet1DwDecTypeB(ConditionalUnet1DwDecTypeA):
                 self.decs[key][0] = nn.Linear(kwargs['down_dims'][-1] // self.n_obs_steps // self.keep_ratio, obs_dim * kwargs['decode_low_dim_dims'][0])
                 
         self.proj = nn.ModuleDict(proj)
+        print('Initialize TypeB')
         
                 
     
