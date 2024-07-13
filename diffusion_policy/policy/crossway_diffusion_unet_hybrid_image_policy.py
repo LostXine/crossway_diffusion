@@ -143,7 +143,7 @@ class AEDiffusionUnetHybridImagePolicy(BaseImagePolicy):
 
         if decode_ver == 'a':
             mymodel = ConditionalUnet1DwDecTypeA
-        if decode_ver == 'b':
+        elif decode_ver == 'b':
             mymodel = ConditionalUnet1DwDecTypeB
         elif decode_ver == 'c':
             mymodel = ConditionalUnet1DwDecTypeC

@@ -405,15 +405,14 @@ class ConditionalUnet1DwDecTypeA(ConditionalUnet1D):
                                 local_cond=local_cond,
                                 global_cond=global_cond)
         
-        # mid.shape is 64 x 2048 (actually down_dims[-1]) x 4
+        # mid.shape is 64 x 2048 (down_dims[-1]) x 4
         # let's select the first time step
-       
         if self.decode_unet_feat:
             mid_pre = mid[:, :, 0] # shape: 64 x 2048
             mid_ld = einops.rearrange(mid_pre, 'b (t c) -> (b t) c', t=self.n_obs_steps)
             b, c = mid_ld.shape
             mid_rgb = mid_ld.reshape(b, -1, self.decode_resolution, self.decode_resolution)
-            # 128 (64 x 2) x 128 x 2 x 2
+            # 128 (64 (batch size) x 2 (n_obs_steps)) x 256 (decode_dims[-1]) x 2 (decode_resolution) x 2 (decode_resolution)
             
             recons = {}
             for key, obs in self.obs_shape_meta.items():
@@ -471,10 +470,10 @@ class ConditionalUnet1DwDecTypeD(ConditionalUnet1DwDecTypeA):
         if self.decode_unet_feat:
             assert len(global_cond.shape) == 2
             
-            mid_id = einops.rearrange(global_cond, 'b (t c) -> (b t) c', t=self.n_obs_steps)
+            mid_id = einops.rearrange(global_cond, 'b (t c) -> (b t) c', t=self.n_obs_steps)  # 128 x 256
             mid_id = self.mid_proj(mid_id).unsqueeze(-1).unsqueeze(-1)
             mid_rgb = mid_id.repeat(1, 1, self.decode_resolution, self.decode_resolution)
-            # 128 (64 x 2) x 128 x 2 x 2
+            # 128 (64 (batch size) x 2 (n_obs_steps)) x 256 (decode_dims[-1]) x 2 (decode_resolution) x 2 (decode_resolution)
             
             recons = {}
             for key, obs in self.obs_shape_meta.items():
@@ -529,7 +528,7 @@ class ConditionalUnet1DwDecTypeC(ConditionalUnet1DwDecTypeA):
             mid_ld = einops.rearrange(mid, 'b (t c) h -> (b t) c h', t=self.n_obs_steps) # 128 x 1024 x 4
             b, c, h = mid_ld.shape
             mid_rgb = mid_ld.reshape(b, c, self.decode_resolution, self.decode_resolution)
-            # 128 (64 x 2) x 128 x 2 x 2
+            # 128 (64 (batch size) x 2 (n_obs_steps)) x 1024 x 2 (decode_resolution) x 2 (decode_resolution)
             
             recons = {}
             for key, obs in self.obs_shape_meta.items():
@@ -601,11 +600,11 @@ class ConditionalUnet1DwDecTypeB(ConditionalUnet1DwDecTypeA):
         
         if self.decode_unet_feat:
             # mid.shape: 64 x 2048 x 4
-            dis = mid.shape[1] // self.keep_ratio
+            dis = mid.shape[1] // self.keep_ratio # 2048 * 1/2 = 1024
             mid_ld = einops.rearrange(mid[:, :dis], 'b (t c) h -> (b t) c h', t=self.n_obs_steps) # 128 x 512 x 4
             b, c, h = mid_ld.shape
             mid_rgb = mid_ld.reshape(b, c, self.decode_resolution, self.decode_resolution)
-            # 128 (64 x 2) x 128 x 2 x 2
+            # 128 (64 (batch size) x 2 (n_obs_steps)) x 512 x 2 (decode_resolution) x 2 (decode_resolution)
             
             recons = {}
             for key, obs in self.obs_shape_meta.items():
