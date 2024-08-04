@@ -141,11 +141,11 @@ class AEDiffusionUnetHybridImagePolicy(BaseImagePolicy):
             input_dim = action_dim
             global_cond_dim = obs_feature_dim * n_obs_steps
 
-        if decode_ver == 'a':
+        if decode_ver == 'a' or decode_ver == 'v1':
             mymodel = ConditionalUnet1DwDecTypeA
-        elif decode_ver == 'b':
+        elif decode_ver == 'b' or decode_ver == 'v3':
             mymodel = ConditionalUnet1DwDecTypeB
-        elif decode_ver == 'c':
+        elif decode_ver == 'c' or decode_ver == 'v2':
             mymodel = ConditionalUnet1DwDecTypeC
         elif decode_ver == 'd':
             mymodel = ConditionalUnet1DwDecTypeD
